@@ -1,0 +1,12 @@
+{
+  "name": "com.voresh.bitproperties",
+  "version": "1.0.0",
+  "displayName": "Bit Properties",
+  "description": "Bit properties packer",
+  "unity": "2020.1",
+  "author": {
+    "name": "Vladimir Oreshkov",
+    "email": "voresh95@gmail.com"
+  },
+  "type": "library"
+}
