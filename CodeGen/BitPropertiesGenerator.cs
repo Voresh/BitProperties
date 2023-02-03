@@ -32,11 +32,18 @@ public class BitPropertiesGenerator : ISourceGenerator {
         if (context.SyntaxReceiver is SyntaxReceiver syntaxReceiver) {
             try {
                 foreach (var typeDeclarationSyntax in syntaxReceiver.Types) {
-                    if (!(typeDeclarationSyntax.Parent is NamespaceDeclarationSyntax namespaceDeclarationSyntax))
+                    if (typeDeclarationSyntax.Parent is TypeDeclarationSyntax)
                         continue; //nested classes are not supported
                     var b = new StringBuilder();
                     b.Append("using System;"); b.Append('\n');
-                    b.Append("namespace "); b.Append(namespaceDeclarationSyntax.Name); b.Append(" {"); b.Append('\n');
+                    var namespaceString 
+                        = typeDeclarationSyntax.Parent is NamespaceDeclarationSyntax namespaceDeclarationSyntax 
+                        && !string.IsNullOrEmpty(namespaceDeclarationSyntax.Name.ToString())
+                            ? namespaceDeclarationSyntax.Name.ToString() 
+                            : null;
+                    if (!string.IsNullOrEmpty(namespaceString)) {
+                        b.Append("namespace "); b.Append(namespaceString); b.Append(" {"); b.Append('\n');
+                    }
                     b.Append("  public partial class "); b.Append(typeDeclarationSyntax.Identifier); b.Append(" {"); b.Append('\n');
                     b.Append("      private byte _bitField;"); b.Append('\n');
                     foreach (var attributeListSyntax in typeDeclarationSyntax.AttributeLists) {
@@ -137,7 +144,8 @@ public class BitPropertiesGenerator : ISourceGenerator {
                         }
                     }
                     b.Append("  }"); b.Append('\n');
-                    b.Append("}");
+                    if (!string.IsNullOrEmpty(namespaceString))
+                        b.Append("}");
                     context.AddSource($"{typeDeclarationSyntax.Identifier}_bp", SourceText.From(b.ToString(), Encoding.UTF8));
                 }
             }
